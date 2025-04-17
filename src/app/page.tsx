@@ -827,7 +827,7 @@ export default function Home() {
                   Get In <span className="text-[#d5ff5f]">Touch</span>
                 </h2>
                 <p className="max-w-[900px] text-gray-400 md:text-xl/relaxed">
-                  Interested in collaborating or have an opportunity? Let's connect!
+                  Interested in collaborating or have an opportunity? Let@aposs connect!
                 </p>
               </div>
             </div>
