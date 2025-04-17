@@ -26,7 +26,8 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+// Remove unused Card components
+// import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -75,7 +76,7 @@ export default function Home() {
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  }, [sectionRefs]) // Add sectionRefs to dependency array
 
   const scrollToSection = (sectionId: string) => {
     const section = sectionRefs[sectionId as keyof typeof sectionRefs].current
@@ -399,13 +400,16 @@ export default function Home() {
               {/* About Text Content - Updated */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-bold">
-                  Hello! I'm <span className="text-[#d5ff5f]">Pankaj Roy</span>
+                  {/* Escape apostrophe */}
+                  Hello! I&apos;m <span className="text-[#d5ff5f]">Pankaj Roy</span>
                 </h3>
                 <p className="text-white">
-                  I'm a Full-Stack Developer with 5+ years of hands-on experience designing, building, and deploying scalable applications. My expertise spans across backend development with Java/Spring Boot, frontend development with React/Next.js, native Android development with Kotlin, and leveraging cloud technologies like AWS and Azure.
+                  {/* Escape apostrophe */}
+                  I&apos;m a Full-Stack Developer with 5+ years of hands-on experience designing, building, and deploying scalable applications. My expertise spans across backend development with Java/Spring Boot, frontend development with React/Next.js, native Android development with Kotlin, and leveraging cloud technologies like AWS and Azure.
                 </p>
                 <p className="text-white">
-                  I have a strong background in REST API development, microservices architecture, and integrating AI/ML techniques to enhance application capabilities. I thrive in agile environments, collaborating effectively to deliver high-quality software solutions that meet user needs and business goals. I'm passionate about performance optimization and creating seamless, engaging user experiences across platforms.
+                  {/* Escape apostrophe */}
+                  I have a strong background in REST API development, microservices architecture, and integrating AI/ML techniques to enhance application capabilities. I thrive in agile environments, collaborating effectively to deliver high-quality software solutions that meet user needs and business goals. I&apos;m passionate about performance optimization and creating seamless, engaging user experiences across platforms.
                 </p>
 
                  {/* Checklist - Updated */}
@@ -793,6 +797,7 @@ export default function Home() {
                   Frequently Asked <span className="text-[#d5ff5f]">Questions</span>
                 </h2>
                 <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed">
+                  {/* Escape apostrophe */}
                   Common questions about my skills, experience, and process.
                 </p>
               </div>
@@ -885,7 +890,8 @@ export default function Home() {
                   <div className="mt-8">
                     <h4 className="font-medium mb-2">Availability</h4>
                     <p className="text-white">
-                     I'm actively seeking challenging Full-Stack or Software Engineering roles. Feel free to reach out if you have a project or position in mind.
+                     {/* Escape apostrophe */}
+                     I&apos;m actively seeking challenging Full-Stack or Software Engineering roles. Feel free to reach out if you have a project or position in mind.
                     </p>
                   </div>
                 </div>
