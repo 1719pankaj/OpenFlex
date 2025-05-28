@@ -10,11 +10,7 @@ Create a stunning, modern, and professional online resume in minutes, **no codin
 
 **Live Demo:** Check out [pankaj.is-a.dev](https://pankaj.is-a.dev) (built with OpenFlex!)
 
-**(Highly Recommended: Add a GIF or Screenshot of the website here!)**
-<!--
-Example:
-![OpenFlex Demo GIF](https://your-image-host.com/openflex-demo.gif)
--->
+![OpenFlex Demo GIF](https://github.com/1719pankaj/Utilities/blob/main/OpenFlex.png)
 
 ## ✨ Why OpenFlex?
 
