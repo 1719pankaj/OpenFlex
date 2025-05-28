@@ -33,12 +33,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
-import placeholderImage from "@/assets/placeholder.png"; // Keep your existing image import
-import appdemo from "@/assets/appdemo.png"; // Keep your existing image import
+import { useResumeData } from "@/hooks/useResumeData"
+import placeholderImage from "@/assets/placeholder.png";
+import appdemo from "@/assets/appdemo.png";
 import { CardSpotlight } from "@/components/ui/card-spotlight";
 
 
 export default function Home() {
+  const { data: resumeData, isLoading, error } = useResumeData();
   const [activeSection, setActiveSection] = useState("hero")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
@@ -89,6 +91,30 @@ export default function Home() {
     setMobileMenuOpen(false)
   }
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#d5ff5f] mx-auto mb-4"></div>
+          <p>Loading resume data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || !resumeData) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">Error: {error || 'Failed to load resume data'}</p>
+          <p>Please check the configuration file.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Updated stats based on resume
   const stats = [
     { value: "5+", label: "Years Experience" },
@@ -126,20 +152,21 @@ export default function Home() {
     },
   ]
 
+  // ...existing scroll effects...
+
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
-      {/* Header remains structurally the same, links updated if needed */}
+      {/* Header - Updated with dynamic data */}
       <header
         className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
           scrollY > 50 ? "bg-black/90 shadow-sm backdrop-blur-sm" : "bg-transparent",
         )}
       >
-        {/* Added px-4 md:px-6 for explicit horizontal padding */}
-        <div className="container px-4 md:px-6 flex h-16 items-center justify-between">
+        <div className="container max-w-full px-4 md:px-6 flex h-16 items-center justify-between">
           <div className="font-bold">
             <Link href="/" className="flex items-center gap-2 text-xl">
-              <span>Pankaj Roy</span>
+              <span>{resumeData.personal.name}</span>
               <span className="text-[#d5ff5f]">.</span>
             </Link>
           </div>
@@ -200,21 +227,21 @@ export default function Home() {
             </NavLink>
           </nav>
 
-          {/* Social Links - Unchanged */}
+          {/* Social Links - Updated with dynamic data */}
           <div className="hidden md:flex items-center gap-2">
-            <Link href="https://github.com/1719pankaj" target="_blank" rel="noopener noreferrer">
+            <Link href={resumeData.personal.github} target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="icon" className="text-[d5ff5f] hover:text-black">
                 <Github className="h-5 w-5" />
                 <span className="sr-only">GitHub</span>
               </Button>
             </Link>
-            <Link href="https://linkedin.com/in/1719pankaj" target="_blank" rel="noopener noreferrer">
+            <Link href={resumeData.personal.linkedin} target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="icon" className="text-[d5ff5f] hover:text-black">
                 <Linkedin className="h-5 w-5" />
                 <span className="sr-only">LinkedIn</span>
               </Button>
             </Link>
-            <Link href="mailto:1719pankaj@gmail.com">
+            <Link href={`mailto:${resumeData.personal.email}`}>
               <Button variant="ghost" size="icon" className="text-[d5ff5f] hover:text-black">
                 <Mail className="h-5 w-5" />
                 <span className="sr-only">Email</span>
@@ -225,9 +252,9 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        {/* Hero Section - Updated Text */}
+        {/* Hero Section - Updated with dynamic data */}
         <section ref={sectionRefs.hero} className="relative min-h-screen flex items-center">
-          <div className="container px-4 md:px-6 z-10">
+          <div className="container max-w-full px-4 md:px-6 z-10">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-8">
                 <div className="space-y-4">
@@ -235,28 +262,31 @@ export default function Home() {
                     className="inline-block animate-slide-up opacity-0"
                     style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}
                   >
-                    {/* Updated Badge */}
                     <Badge className="px-4 py-1 text-sm bg-[#f5ffdd] text-black border-[#e7ffac] mb-4">
-                      Full-Stack Developer
+                      {resumeData.hero.badge}
                     </Badge>
                   </div>
                   <h1
                     className="text-4xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none animate-slide-up opacity-0"
                     style={{ animationDelay: "0.4s", animationFillMode: "forwards" }}
                   >
-                    {/* Updated Heading */}
-                    Building Scalable Web <br />
-                    & <span className="text-[#d5ff5f]">Mobile Applications</span>
+                    {resumeData.hero.title.split('&').map((part, index) => (
+                      <span key={index}>
+                        {index === 0 ? part : (
+                          <>
+                            <br />& <span className="text-[#d5ff5f]">{part}</span>
+                          </>
+                        )}
+                      </span>
+                    ))}
                   </h1>
                   <p
                     className="max-w-[600px] text-gray-500 md:text-xl animate-slide-up opacity-0"
                     style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
                   >
-                    {/* Updated Tagline */}
-                    Passionate about crafting high-performance applications using Java/Spring Boot, React/Next.js, Kotlin, and cloud technologies like AWS & Azure. Focused on robust architecture and seamless user experiences.
+                    {resumeData.hero.subtitle}
                   </p>
                 </div>
-                 {/* Buttons and Links - Functionality unchanged, CV link updated */}
                 <div
                   className="flex flex-col gap-4 sm:flex-row animate-slide-up opacity-0"
                   style={{ animationDelay: "0.8s", animationFillMode: "forwards" }}
@@ -265,7 +295,7 @@ export default function Home() {
                     className="bg-[#d5ff5f] hover:bg-[#c4ee4e] text-black border-0 rounded-none px-8"
                     onClick={() => scrollToSection("projects")}
                   >
-                    View My Projects
+                    {resumeData.hero.ctaButtons.primary}
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                   <Button
@@ -273,26 +303,25 @@ export default function Home() {
                     className="border-[#d5ff5f] text-black hover:bg-[#f5ffdd] rounded-none px-8"
                     onClick={() => scrollToSection("contact")}
                   >
-                    Contact Me
+                    {resumeData.hero.ctaButtons.secondary}
                   </Button>
-                  {/* Assuming this is your CV link from the resume */}
-                  <Link href={"https://74w9gmh08h.ufs.sh/f/Pq0T9K360QRgvohzN6HRbO9NM7BDr5YWlfq6X3HJwj0Zisue"} target="_blank" rel="noopener noreferrer"> 
+                  <Link href={resumeData.personal.resumeUrl} target="_blank" rel="noopener noreferrer">
                     <Button
                       variant="ghost"
                       className="text-[#d5ff5f] hover:text-[#d5ff5f] hover:bg-transparent rounded-none px-8"
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Download CV
+                      {resumeData.hero.ctaButtons.resume}
                     </Button>
                   </Link>
                 </div>
 
-                {/* Social Links in Hero - Unchanged */}
+                {/* Social Links in Hero - Updated with dynamic data */}
                 <div
                   className="flex gap-4 animate-slide-up opacity-0"
                   style={{ animationDelay: "1s", animationFillMode: "forwards" }}
                 >
-                  <Link href="https://github.com/1719pankaj" target="_blank" rel="noopener noreferrer">
+                  <Link href={resumeData.personal.github} target="_blank" rel="noopener noreferrer">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -302,7 +331,7 @@ export default function Home() {
                       <span className="sr-only">GitHub</span>
                     </Button>
                   </Link>
-                  <Link href="https://linkedin.com/in/1719pankaj" target="_blank" rel="noopener noreferrer">
+                  <Link href={resumeData.personal.linkedin} target="_blank" rel="noopener noreferrer">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -312,7 +341,7 @@ export default function Home() {
                       <span className="sr-only">LinkedIn</span>
                     </Button>
                   </Link>
-                  <Link href="mailto:1719pankaj@gmail.com">
+                  <Link href={`mailto:${resumeData.personal.email}`}>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -358,26 +387,29 @@ export default function Home() {
           </div>
         </section>
 
-        {/* About Section - Updated Text */}
+        {/* About Section - Updated with dynamic data */}
         <section id="about" ref={sectionRefs.about} className="w-full py-20 md:py-32 relative bg-zinc-900">
-          <div className="container px-4 md:px-6 relative">
+          <div className="container max-w-full px-4 md:px-6 relative">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2 max-w-3xl">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                  About <span className="text-[#d5ff5f]">Me</span>
+                  {resumeData.about.title.split(' ').map((word, index) => (
+                    <span key={index}>
+                      {word === 'Me' ? <span className="text-[#d5ff5f]">{word}</span> : word}
+                      {index < resumeData.about.title.split(' ').length - 1 && ' '}
+                    </span>
+                  ))}
                 </h2>
                 <p className="text-gray-300 md:text-xl/relaxed">
-                  {/* Updated Subtitle */}
-                  A dedicated Full-Stack Developer experienced in Java, React, Next.js, Kotlin, and cloud platforms.
+                  {resumeData.about.subtitle}
                 </p>
               </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-10 items-center">
-               {/* Image and Stats Overlay - Unchanged, uses stats array */}
               <div className="relative">
                 <Image
-                  src={appdemo} // Keep your image
+                  src={appdemo}
                   width={500}
                   height={600}
                   alt="App Demo Showcase"
@@ -386,93 +418,57 @@ export default function Home() {
                 <div className="absolute -bottom-6 -right-6 bg-zinc-800 p-4 shadow-lg">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <p className="text-3xl font-bold text-[#d5ff5f]">{stats[0].value}</p>
-                      <p className="text-sm text-gray-400">{stats[0].label}</p>
+                      <p className="text-3xl font-bold text-[#d5ff5f]">{resumeData.stats[0].value}</p>
+                      <p className="text-sm text-gray-400">{resumeData.stats[0].label}</p>
                     </div>
                     <div className="text-center">
-                       <p className="text-3xl font-bold text-[#d5ff5f]">{stats[1].value}</p>
-                       <p className="text-sm text-gray-400">{stats[1].label}</p>
+                      <p className="text-3xl font-bold text-[#d5ff5f]">{resumeData.stats[1].value}</p>
+                      <p className="text-sm text-gray-400">{resumeData.stats[1].label}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* About Text Content - Updated */}
               <div className="space-y-6">
                 <h3 className="text-2xl font-bold">
-                  {/* Escape apostrophe */}
-                  Hello! I&apos;m <span className="text-[#d5ff5f]">Pankaj Roy</span>
+                  Hello! I&apos;m <span className="text-[#d5ff5f]">{resumeData.personal.name}</span>
                 </h3>
-                <p className="text-white">
-                  {/* Escape apostrophe */}
-                  I&apos;m a Full-Stack Developer with 5+ years of hands-on experience designing, building, and deploying scalable applications. My expertise spans across backend development with Java/Spring Boot, frontend development with React/Next.js, native Android development with Kotlin, and leveraging cloud technologies like AWS and Azure.
-                </p>
-                <p className="text-white">
-                  {/* Escape apostrophe */}
-                  I have a strong background in REST API development, microservices architecture, and integrating AI/ML techniques to enhance application capabilities. I thrive in agile environments, collaborating effectively to deliver high-quality software solutions that meet user needs and business goals. I&apos;m passionate about performance optimization and creating seamless, engaging user experiences across platforms.
-                </p>
+                {resumeData.about.description.map((paragraph, index) => (
+                  <p key={index} className="text-white">
+                    {paragraph}
+                  </p>
+                ))}
 
-                 {/* Checklist - Updated */}
                 <div className="grid grid-cols-2 gap-4 pt-4">
-                  <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#d5ff5f]" />
-                    <span>Java & Spring Boot</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#d5ff5f]" />
-                    <span>React & Next.js</span>
-                  </div>
-                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#d5ff5f]" />
-                    <span>Kotlin & Android Dev</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#d5ff5f]" />
-                    <span>AWS & Azure Cloud</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#d5ff5f]" />
-                    <span>REST API Design</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#d5ff5f]" />
-                    <span>Microservices</span>
-                  </div>
-                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#d5ff5f]" />
-                    <span>Agile Methodologies</span>
-                  </div>
-                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#d5ff5f]" />
-                    <span>Performance Tuning</span>
-                  </div>
+                  {resumeData.about.highlights.map((highlight, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Check className="h-5 w-5 text-[#d5ff5f]" />
+                      <span>{highlight}</span>
+                    </div>
+                  ))}
                 </div>
 
-                 {/* Personal Details - Updated Location, Availability */}
                 <div className="pt-4 flex flex-wrap gap-4">
                   <div className="flex items-center gap-2">
                     <User className="h-5 w-5 text-[#d5ff5f]" />
-                    <span className="text-white">Name: Pankaj Kumar Roy</span>
+                    <span className="text-white">Name: {resumeData.personal.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="h-5 w-5 text-[#d5ff5f]" />
-                    <span className="text-white">Email: 1719pankaj@gmail.com</span>
+                    <span className="text-white">Email: {resumeData.personal.email}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-[#d5ff5f]" />
-                    {/* Updated Availability - More general */}
-                    <span className="text-white">Available: Open to Opportunities</span> 
+                    <span className="text-white">Available: {resumeData.about.availability}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Globe className="h-5 w-5 text-[#d5ff5f]" />
-                    {/* Updated Location */}
-                    <span className="text-white">Location: Kolkata, India</span> 
+                    <span className="text-white">Location: {resumeData.personal.location}</span>
                   </div>
                 </div>
 
-                {/* Resume Button - Updated link */}
                 <div className="pt-4">
-                  <Link href={"https://74w9gmh08h.ufs.sh/f/Pq0T9K360QRgvohzN6HRbO9NM7BDr5YWlfq6X3HJwj0Zisue"} target="_blank" rel="noopener noreferrer">
+                  <Link href={resumeData.personal.resumeUrl} target="_blank" rel="noopener noreferrer">
                     <Button className="bg-[#d5ff5f] hover:bg-[#c4ee4e] text-black rounded-none">
                       Download Resume <Download className="ml-2 h-4 w-4" />
                     </Button>
@@ -483,9 +479,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Skills Section - Updated Skills & Tools */}
+        {/* Skills Section - Updated with dynamic data */}
         <section id="skills" ref={sectionRefs.skills} className="w-full py-20 md:py-32 relative">
-          <div className="container px-4 md:px-6 relative">
+          <div className="container max-w-full px-4 md:px-6 relative">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
@@ -513,66 +509,41 @@ export default function Home() {
                {/* Technical Skills - Updated from Resume */}
               <TabsContent value="technical" className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {/* Backend */}
-                  <SkillBar name="Java" percentage={95} />
-                  <SkillBar name="Spring Boot" percentage={90} />
-                  <SkillBar name="REST API Development" percentage={95} />
-                  <SkillBar name="Microservices" percentage={80} />
-                  <SkillBar name="Python" percentage={75} />
-                  {/* Frontend */}
-                  <SkillBar name="JavaScript / TypeScript" percentage={90} />
-                  <SkillBar name="React / Next.js" percentage={90} />
-                  <SkillBar name="Redux" percentage={85} />
-                  <SkillBar name="HTML / CSS" percentage={85} />
-                  {/* Mobile */}
-                  <SkillBar name="Kotlin" percentage={95} />
-                  <SkillBar name="Android SDK / Jetpack" percentage={90} />
-                  <SkillBar name="React Native" percentage={80} /> 
-                  {/* Database & General */}
-                  <SkillBar name="SQL (Postgres, MySQL)" percentage={80} />
-                  <SkillBar name="NoSQL (DynamoDB, Firebase)" percentage={75} />
-                  <SkillBar name="AI/ML Integration (Basic)" percentage={65} />
+                  {resumeData.skills.technical.map((skill, index) => (
+                    <SkillBar key={index} name={skill.name} percentage={skill.percentage} />
+                  ))}
                 </div>
               </TabsContent>
               {/* Tools & Platforms - Updated from Resume */}
               <TabsContent value="tools_platforms" className="space-y-8">
                  <h3 className="text-xl font-bold text-center text-[#d5ff5f]">Cloud & DevOps</h3>
                  <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-                     <SkillBar name="AWS (EC2, S3, Lambda, DynamoDB)" percentage={85} />
-                     <SkillBar name="Azure (Fundamentals, DevOps)" percentage={80} />
-                     <SkillBar name="Firebase" percentage={80} />
-                     <SkillBar name="Docker" percentage={85} />
-                     <SkillBar name="Terraform" percentage={70} />
-                     <SkillBar name="GitHub Actions / Azure DevOps" percentage={75} />
+                   {resumeData.skills.tools.map((tool, index) => (
+                     <SkillBar key={index} name={tool.name} percentage={tool.percentage} />
+                   ))}
                  </div>
                  <h3 className="text-xl font-bold text-center mt-10 text-[#d5ff5f]">Development Tools</h3>
                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                     <TechIcon name="IntelliJ IDEA" />
-                     <TechIcon name="VS Code" />
-                     <TechIcon name="Android Studio" />
-                     <TechIcon name="Git / GitHub" />
-                     <TechIcon name="Postman" />
-                     <TechIcon name="Gradle / Maven" />
-                     <TechIcon name="PySpark" />
-                     <TechIcon name="Jira" />
-                     <TechIcon name="Figma (Basic)" />
+                   {resumeData.skills.devTools.map((tool, index) => (
+                     <TechIcon key={index} name={tool} />
+                   ))}
                  </div>
               </TabsContent>
               {/* Languages - Unchanged (assuming these are still accurate) */}
               <TabsContent value="languages" className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <SkillBar name="English" percentage={90} />
-                  <SkillBar name="Hindi" percentage={100} />
-                  <SkillBar name="Bengali" percentage={85} />
+                  {resumeData.skills.languages.map((language, index) => (
+                    <SkillBar key={index} name={language.name} percentage={language.percentage} />
+                  ))}
                 </div>
               </TabsContent>
             </Tabs>
           </div>
         </section>
 
-        {/* Projects Section - Updated with user's projects */}
+        {/* Projects Section - Updated with dynamic data */}
         <section id="projects" ref={sectionRefs.projects} className="w-full py-20 md:py-32 relative bg-zinc-900">
-          <div className="container px-4 md:px-6 relative">
+          <div className="container max-w-full px-4 md:px-6 relative">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white">
@@ -587,48 +558,16 @@ export default function Home() {
 
             {/* Updated Project Cards */}
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 w-full max-w-7xl mx-auto">
-              <ProjectSpotlightCard
-                title="OnlyFormula1"
-                description="Ultra-fast live F1 race monitor app, delivering data minutes ahead of TV broadcasts via a high-performance Go backend managing 40+ data sources."
-                technologies={["Go", "Kotlin", "CockroachDB", "MVVM", "Retrofit", "Android"]}
-                githubUrl="https://github.com/1719pankaj/OnlyFormula1"
-                demoUrl="#" // Add demo URL if available
-              />
-              <ProjectSpotlightCard
-                title="Code2Context"
-                description="Text extraction toolchain processing multiple codebases to generate optimized context for LLM prompting or RAG graph construction."
-                technologies={["Python", "PyTorch", "OpenRouter API", "AI/ML"]}
-                githubUrl="https://github.com/1719pankaj/code2context"
-                demoUrl="#" // Add demo URL if available
-              />
-              <ProjectSpotlightCard
-                title="OpenDrive"
-                description="Exposes vehicle CAN bus data via ESP32, providing real-time insights and metrics through a Kotlin Android application."
-                technologies={["ESP_IDF", "Kotlin", "CAN Bus", "ELM327", "Android", "IoT"]}
-                githubUrl="https://github.com/1719pankaj/OpenDrive"
-                demoUrl="#" // Add demo URL if available
-              />
-              <ProjectSpotlightCard
-                title="Pastry Wrapper"
-                description="Open-source Android app aggregating various LLMs with an interactive, prompt-engineering-friendly UI, featuring advanced pre/post-processing."
-                technologies={["Kotlin", "MVVM", "Gemini API", "OpenRouter API", "Retrofit", "Android"]}
-                githubUrl="https://github.com/1719pankaj/Pastry-Wrapper"
-                demoUrl="#" // Add demo URL if available
-              />
-               <ProjectSpotlightCard
-                title="Phuljhari"
-                description="Patient monitoring system using embedded tech & Firebase backend. Allows remote monitoring of vital stats via Android, iOS (planned), and Next.js web apps."
-                technologies={["Embedded C/C++", "Firebase", "Kotlin", "Next.js", "IoT", "Android", "Web"]}
-                githubUrl="https://github.com/1719pankaj/Phuljhari"
-                demoUrl="#" // Add demo URL if available
-              />
-              <ProjectSpotlightCard
-                title="Portfolio Website (This Site)"
-                description="My personal portfolio website showcasing projects and skills, built with a modern tech stack focused on performance and aesthetics."
-                technologies={["Next.js", "React", "TypeScript", "TailwindCSS", "shadcn/ui", "Aceternity UI", "UploadThing"]}
-                githubUrl="https://github.com/1719pankaj/pankaj-portfolio" // Replace with your actual repo name if different
-                demoUrl="https://pankaj.is-a.dev" // Link to the live site
-              />
+              {resumeData.projects.map((project, index) => (
+                <ProjectSpotlightCard
+                  key={index}
+                  title={project.title}
+                  description={project.description}
+                  technologies={project.technologies}
+                  githubUrl={project.githubUrl}
+                  demoUrl={project.demoUrl ?? undefined}
+                />
+              ))}
             </div>
 
             {/* View All Projects Button - Unchanged */}
@@ -643,9 +582,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Experience Section - Updated from Resume */}
+        {/* Experience Section - Updated with dynamic data */}
         <section id="experience" ref={sectionRefs.experience} className="w-full py-20 md:py-32 relative">
-          <div className="container px-4 md:px-6 relative">
+          <div className="container max-w-full px-4 md:px-6 relative">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
@@ -660,65 +599,25 @@ export default function Home() {
 
             <div className="max-w-3xl mx-auto">
               <div className="relative border-l-2 border-[#d5ff5f] pl-8 ml-4">
-                {/* Added Experience Items from Resume */}
-                <TimelineItem
-                  title="Programmer Analyst"
-                  company="Cognizant"
-                  period="Apr 2023 - Present"
-                  description="Developing and enhancing high-performance web applications and robust backend APIs within a large-scale enterprise environment."
-                  responsibilities={[
-                    "Built and maintained high-performance web applications using React, Next.js, and Java/Spring Boot, contributing to a 40% increase in user engagement.",
-                    "Developed and optimized RESTful APIs supporting over 10,000 concurrent users, achieving a 25% reduction in response times.",
-                    "Led a team of 11 engineers on the CII Conversion Framework project, delivering significant annual savings ($531K).",
-                    "Applied microservices architecture principles and cloud technologies (AWS).",
-                  ]}
-                />
-
-                <TimelineItem
-                  title="Programmer Analyst Trainee"
-                  company="Cognizant"
-                  period="Dec 2022 - Mar 2023"
-                  description="Gained foundational experience in full-stack development within an agile team setting."
-                  responsibilities={[
-                    "Developed responsive web application features using React, Next.js, and Spring Boot.",
-                    "Collaborated within agile teams, participating in sprints and contributing to feature delivery on schedule.",
-                    "Gained exposure to enterprise development workflows and best practices.",
-                  ]}
-                />
-
-                 <TimelineItem
-                  title="Data Development Intern"
-                  company="Cognizant (Azure)"
-                  period="Jan 2022 - Jun 2022"
-                  description="Focused on data engineering tasks, building data pipelines and exploring cross-platform cloud solutions."
-                  responsibilities={[
-                    "Implemented data pipelines utilizing PySpark and Azure services.",
-                    "Applied knowledge of AWS for designing cross-platform compatibility solutions.",
-                    "Gained experience in cloud-based data processing and management.",
-                  ]}
-                />
-
-                <TimelineItem
-                  title="Freelance React & Java Developer"
-                  company="Self-Employed"
-                  period="Jan 2019 - Dec 2021"
-                  description="Provided freelance web development services to various clients, focusing on React frontends and Java backends."
-                  responsibilities={[
-                    "Developed full-stack web applications for clients using React, Next.js, Spring Boot, and AWS.",
-                    "Designed and implemented RESTful APIs.",
-                    "Managed application state effectively using Redux.",
-                    "Handled client communication, requirement gathering, and project delivery.",
-                  ]}
-                  isLast={true} // Mark the last item
-                />
+                {resumeData.experience.map((exp, index) => (
+                  <TimelineItem
+                    key={index}
+                    title={exp.title}
+                    company={exp.company}
+                    period={exp.period}
+                    description={exp.description}
+                    responsibilities={exp.responsibilities}
+                    isLast={index === resumeData.experience.length - 1}
+                  />
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Education Section - Updated from Resume */}
+        {/* Education Section - Updated with dynamic data */}
         <section id="education" ref={sectionRefs.education} className="w-full py-20 md:py-32 relative bg-zinc-900">
-          <div className="container px-4 md:px-6 relative">
+          <div className="container max-w-full px-4 md:px-6 relative">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white">
@@ -738,13 +637,15 @@ export default function Home() {
                   Education
                 </h3>
                 <div className="space-y-8">
-                  <EducationItem
-                    degree="B.Tech in Electrical Engineering"
-                    institution="MAKAUT, Academy of Technology"
-                    period="2018 - 2022"
-                    description="Completed Bachelor of Technology with a CGPA of 8.61. Coursework provided a strong analytical foundation relevant to software engineering problem-solving."
-                  />
-                  {/* Add any other relevant education here if needed */}
+                  {resumeData.education.map((edu, index) => (
+                    <EducationItem
+                      key={index}
+                      degree={edu.degree}
+                      institution={edu.institution}
+                      period={edu.period}
+                      description={edu.description}
+                    />
+                  ))}
                 </div>
               </div>
 
@@ -755,30 +656,26 @@ export default function Home() {
                   Certifications
                 </h3>
                 <div className="space-y-8">
-                  <CertificationItem
-                    title="Microsoft Certified: Azure Developer Associate (AZ-204)"
-                    issuer="Microsoft"
-                    date="Earned" // Add date if known, otherwise keep general
-                    description="Validates expertise in designing, building, testing, and maintaining cloud applications and services on Microsoft Azure."
-                  />
-                  <CertificationItem
-                    title="Microsoft Certified: Azure Fundamentals (AZ-900)"
-                    issuer="Microsoft"
-                    date="Earned" // Add date if known
-                    description="Demonstrates foundational knowledge of cloud concepts and Azure services, security, privacy, compliance, trust, pricing, and support."
-                  />
-                   {/* Add any other relevant certifications here */}
+                  {resumeData.certifications.map((cert, index) => (
+                    <CertificationItem
+                      key={index}
+                      title={cert.title}
+                      issuer={cert.issuer}
+                      date={cert.date}
+                      description={cert.description}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats Section - Updated using stats array */}
+        {/* Stats Section - Updated with dynamic data */}
         <section id="stats" ref={sectionRefs.stats} className="w-full py-20 md:py-32 relative bg-black text-white">
-          <div className="container px-4 md:px-6 relative">
+          <div className="container max-w-full px-4 md:px-6 relative">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              {stats.map((stat, index) => (
+              {resumeData.stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <p className="text-4xl md:text-5xl font-bold text-[#d5ff5f] mb-2">{stat.value}</p>
                   <p className="text-gray-400">{stat.label}</p>
@@ -788,9 +685,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* FAQ Section - Updated using faqItems array */}
+        {/* FAQ Section - Updated with dynamic data */}
         <section id="faq" ref={sectionRefs.faq} className="w-full py-20 md:py-32 relative">
-          <div className="container px-4 md:px-6 relative">
+          <div className="container max-w-full px-4 md:px-6 relative">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
@@ -805,7 +702,7 @@ export default function Home() {
 
             <div className="max-w-3xl mx-auto">
               <Accordion type="single" collapsible className="w-full">
-                {faqItems.map((item, index) => (
+                {resumeData.faq.map((item, index) => (
                   <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-200">
                     <AccordionTrigger className="text-left font-medium py-4 hover:text-[#d5ff5f] hover:no-underline">
                       {item.question}
@@ -818,40 +715,41 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Contact Section - Updated Location Text & Map */}
+        {/* Contact Section - Updated with dynamic data */}
         <section id="contact" ref={sectionRefs.contact} className="w-full py-20 md:py-32 relative bg-zinc-900">
-          <div className="container px-4 md:px-6 relative">
+          <div className="container max-w-full px-4 md:px-6 relative">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white">
-                  Get In <span className="text-[#d5ff5f]">Touch</span>
+                  {resumeData.contact.title.split(' ').map((word, index) => (
+                    <span key={index}>
+                      {word === 'Touch' ? <span className="text-[#d5ff5f]">{word}</span> : word}
+                      {index < resumeData.contact.title.split(' ').length - 1 && ' '}
+                    </span>
+                  ))}
                 </h2>
                 <p className="max-w-[900px] text-gray-400 md:text-xl/relaxed">
-                  Interested in collaborating or have an opportunity? Let@aposs connect!
+                  {resumeData.contact.subtitle}
                 </p>
               </div>
             </div>
 
-            {/* Changed grid layout to md:grid-cols-1 and centered content */}
-            <div className="grid md:grid-cols-1 gap-10 max-w-2xl mx-auto"> {/* Adjusted max-width and centering */}
-              {/* Contact Info Box - Unchanged structure, links verified */}
+            <div className="grid md:grid-cols-1 gap-10 max-w-2xl mx-auto">
               <div className="space-y-6">
                 <div className="bg-black p-6 shadow-md">
                   <h3 className="text-xl font-bold mb-4">Contact Information</h3>
                   <div className="space-y-4">
-                    {/* Email */}
                     <div className="flex items-center gap-4">
                       <div className="p-3 rounded-full bg-[#d5ff5f]">
                         <Mail className="h-6 w-6 text-black" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Email</p>
-                        <a href="mailto:1719pankaj@gmail.com" className="hover:text-[#d5ff5f]">
-                          1719pankaj@gmail.com
+                        <a href={`mailto:${resumeData.personal.email}`} className="hover:text-[#d5ff5f]">
+                          {resumeData.personal.email}
                         </a>
                       </div>
                     </div>
-                    {/* GitHub */}
                     <div className="flex items-center gap-4">
                       <div className="p-3 rounded-full bg-[#d5ff5f]">
                         <Github className="h-6 w-6 text-black" />
@@ -859,16 +757,15 @@ export default function Home() {
                       <div>
                         <p className="text-sm text-gray-500">GitHub</p>
                         <a
-                          href="https://github.com/1719pankaj"
+                          href={resumeData.personal.github}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="hover:text-[#d5ff5f]"
                         >
-                          github.com/1719pankaj
+                          {resumeData.personal.github.replace('https://', '')}
                         </a>
                       </div>
                     </div>
-                    {/* LinkedIn */}
                     <div className="flex items-center gap-4">
                       <div className="p-3 rounded-full bg-[#d5ff5f]">
                         <Linkedin className="h-6 w-6 text-black" />
@@ -876,34 +773,30 @@ export default function Home() {
                       <div>
                         <p className="text-sm text-gray-500">LinkedIn</p>
                         <a
-                          href="https://linkedin.com/in/1719pankaj"
+                          href={resumeData.personal.linkedin}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="hover:text-[#d5ff5f]"
                         >
-                          linkedin.com/in/1719pankaj
+                          {resumeData.personal.linkedin.replace('https://', '')}
                         </a>
                       </div>
                     </div>
                   </div>
-                  {/* Availability Text - Updated */}
                   <div className="mt-8">
                     <h4 className="font-medium mb-2">Availability</h4>
                     <p className="text-white">
-                     {/* Escape apostrophe */}
-                     I&apos;m actively seeking challenging Full-Stack or Software Engineering roles. Feel free to reach out if you have a project or position in mind.
+                      {resumeData.contact.availability}
                     </p>
                   </div>
                 </div>
 
-                {/* Location Box - Updated Map and Text */}
                 <div className="bg-black p-6 shadow-md border border-gray-100">
                   <h3 className="text-xl font-bold mb-4">Location</h3>
                   <div className="aspect-video bg-gray-200 mb-4">
-                     {/* Updated iframe source for Kolkata */}
                     <iframe
-                      title="Kolkata Map"
-                      src="https://www.openstreetmap.org/export/embed.html?bbox=88.26227188110353%2C22.52001001460465%2C88.42294692993164%2C22.627004259373486&layer=mapnik"
+                      title="Location Map"
+                      src={resumeData.contact.mapUrl}
                       width="400"
                       height="200"
                       className="w-full h-full object-cover border-0"
@@ -912,8 +805,7 @@ export default function Home() {
                       referrerPolicy="no-referrer-when-downgrade"
                     ></iframe>
                   </div>
-                  {/* Updated Location Text */}
-                  <p className="text-white">Kolkata, West Bengal, India</p>
+                  <p className="text-white">{resumeData.personal.location}</p>
                 </div>
               </div>
             </div>
@@ -921,24 +813,24 @@ export default function Home() {
         </section>
       </main>
 
-       {/* Footer - Unchanged Structure, links verified */}
+      {/* Footer - Updated with dynamic data */}
       <footer className="w-full border-t border-gray-700 py-8 bg-black">
-        <div className="container flex flex-col items-center justify-between gap-4 md:flex-row px-4 md:px-6">
-          <p className="text-sm text-gray-500">© {new Date().getFullYear()} Pankaj Kumar Roy. All rights reserved.</p>
+        <div className="container max-w-full flex flex-col items-center justify-between gap-4 md:flex-row px-4 md:px-6">
+          <p className="text-sm text-gray-500">© {new Date().getFullYear()} {resumeData.personal.name}. All rights reserved.</p>
           <div className="flex items-center gap-4">
-            <Link href="https://github.com/1719pankaj" target="_blank" rel="noopener noreferrer">
+            <Link href={resumeData.personal.github} target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="icon" className="text-[d5ff5f] hover:text-[#d5ff5f] hover:bg-transparent">
                 <Github className="h-4 w-4" />
                 <span className="sr-only">GitHub</span>
               </Button>
             </Link>
-            <Link href="https://linkedin.com/in/1719pankaj" target="_blank" rel="noopener noreferrer">
+            <Link href={resumeData.personal.linkedin} target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="icon" className="text-[d5ff5f] hover:text-[#d5ff5f] hover:bg-transparent">
                 <Linkedin className="h-4 w-4" />
                 <span className="sr-only">LinkedIn</span>
               </Button>
             </Link>
-            <Link href="mailto:1719pankaj@gmail.com">
+            <Link href={`mailto:${resumeData.personal.email}`}>
               <Button variant="ghost" size="icon" className="text-[d5ff5f] hover:text-[#d5ff5f] hover:bg-transparent">
                 <Mail className="h-4 w-4" />
                 <span className="sr-only">Email</span>
