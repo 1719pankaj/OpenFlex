@@ -94,7 +94,7 @@ export const useResumeData = () => {
       // Since we're importing the JSON directly, we can set it immediately
       setData(resumeData as ResumeData);
       setIsLoading(false);
-    } catch (err) {
+    } catch {
       setError('Failed to load resume data');
       setIsLoading(false);
     }

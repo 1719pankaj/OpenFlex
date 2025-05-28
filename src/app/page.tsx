@@ -45,17 +45,28 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
 
-  // Refs for each section
+  // Refs for each section - moved outside useMemo to fix hooks rule violation
+  const heroRef = useRef<HTMLElement>(null)
+  const aboutRef = useRef<HTMLElement>(null)
+  const skillsRef = useRef<HTMLElement>(null)
+  const projectsRef = useRef<HTMLElement>(null)
+  const experienceRef = useRef<HTMLElement>(null)
+  const educationRef = useRef<HTMLElement>(null)
+  const statsRef = useRef<HTMLElement>(null)
+  const faqRef = useRef<HTMLElement>(null)
+  const contactRef = useRef<HTMLElement>(null)
+
+  // Create refs object after individual refs are created
   const sectionRefs = {
-    hero: useRef<HTMLElement>(null),
-    about: useRef<HTMLElement>(null),
-    skills: useRef<HTMLElement>(null),
-    projects: useRef<HTMLElement>(null),
-    experience: useRef<HTMLElement>(null),
-    education: useRef<HTMLElement>(null),
-    stats: useRef<HTMLElement>(null),
-    faq: useRef<HTMLElement>(null),
-    contact: useRef<HTMLElement>(null),
+    hero: heroRef,
+    about: aboutRef,
+    skills: skillsRef,
+    projects: projectsRef,
+    experience: experienceRef,
+    education: educationRef,
+    stats: statsRef,
+    faq: faqRef,
+    contact: contactRef,
   }
 
   // Handle scroll events
@@ -78,7 +89,7 @@ export default function Home() {
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [sectionRefs]) // Add sectionRefs to dependency array
+  }, [sectionRefs])
 
   const scrollToSection = (sectionId: string) => {
     const section = sectionRefs[sectionId as keyof typeof sectionRefs].current
@@ -114,45 +125,6 @@ export default function Home() {
       </div>
     );
   }
-
-  // Updated stats based on resume
-  const stats = [
-    { value: "5+", label: "Years Experience" },
-    { value: "10+", label: "Projects Built" }, // Estimated from resume/GitHub
-    { value: "2", label: "Certifications" }, // From resume
-    { value: "11", label: "Engineers Led (Project)" }, // Specific achievement from resume
-  ]
-
-  // Updated FAQ items reflecting broader scope
-  const faqItems = [
-    {
-      question: "What is your development process?",
-      answer:
-        "My development process generally follows agile methodologies. I prioritize understanding requirements thoroughly, followed by iterative design, development (backend & frontend/mobile), rigorous testing (unit, integration, E2E), and deployment. Continuous communication and feedback loops are key to ensuring the final product aligns with the vision and performs optimally.",
-    },
-    {
-      question: "What technologies do you specialize in?",
-      answer:
-        "I specialize in building full-stack applications using Java/Spring Boot for robust backends, React/Next.js for dynamic web frontends, and Kotlin/React Native for native and cross-platform mobile experiences. I'm also proficient with cloud platforms like AWS and Azure, various databases (SQL/NoSQL), containerization with Docker, and CI/CD practices.",
-    },
-    {
-      question: "How do you approach building scalable applications?",
-      answer:
-        "Scalability starts with architecture. I leverage microservices patterns where appropriate, design efficient RESTful APIs, utilize cloud-native services (like AWS Lambda, EC2 Auto Scaling, Azure Functions), optimize database interactions, and implement caching strategies. Performance testing and monitoring are crucial throughout the development lifecycle.",
-    },
-    {
-      question: "Do you have experience with both web and mobile development?",
-      answer:
-        "Yes, absolutely. I have extensive experience developing high-performance web applications using React and Next.js, building RESTful APIs with Java/Spring Boot, and creating native Android applications with Kotlin. I'm comfortable working across the entire stack and integrating web, mobile, and backend components seamlessly.",
-    },
-     {
-      question: "Can you integrate AI/ML features into applications?",
-      answer:
-        "Yes, I have experience applying machine learning techniques and integrating AI functionalities. This includes implementing features like AI-optimized context generation (as seen in my Code2Context project using RAG) and leveraging AI services for tasks like data analysis or enhancing user interactions.",
-    },
-  ]
-
-  // ...existing scroll effects...
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
