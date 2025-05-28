@@ -34,41 +34,11 @@ Create a stunning, modern, and professional online resume in minutes, **no codin
 
 ## 🚀 Getting Started
 
-Get your personal portfolio website up and running in 3 simple steps:
+Ready to create your stunning portfolio? It's incredibly simple!
 
-1.  **Get the Code:**
-    *   **Option A (Recommended for easy deployment):** Click the "Deploy with Vercel" button above to clone and deploy simultaneously.
-    *   **Option B (Manual):** Fork this repository, then clone it to your local machine:
-        ```bash
-        git clone https://github.com/YOUR_GITHUB_USERNAME/OpenFlex.git
-        cd OpenFlex
-        ```
+**For detailed, step-by-step instructions on how to get your OpenFlex portfolio up and running, please refer to our comprehensive `Instructions.md` file.**
 
-2.  **Configure Your Data:**
-    *   Open `src/config/resume-data.json`.
-    *   Edit the content with your personal information, projects, experience, etc.
-    *   **For detailed instructions on each field, please refer to the `Instructions.md` file.**
-
-3.  **Run & Deploy:**
-    *   **Install Dependencies:**
-        ```bash
-        npm install
-        # or
-        yarn install
-        # or
-        pnpm install
-        ```
-    *   **Run Locally (Optional):**
-        ```bash
-        npm run dev
-        # or
-        yarn dev
-        # or
-        pnpm dev
-        ```
-        Open [http://localhost:3000](http://localhost:3000) in your browser.
-    *   **Deploy to Vercel:**
-        If you didn't use the "Deploy with Vercel" button, commit your changes and push them to your forked repository. Then, connect your repository to Vercel for seamless deployment.
+This guide will walk you through everything from getting the code and configuring your `resume-data.json` to deploying your site with Vercel.
 
 ## ⚙️ Configuration Deep Dive
 
